@@ -1,4 +1,5 @@
 mod components;
+mod physics;
 
 use sdl2::pixels::Color;
 use sdl2::event::Event;
@@ -78,23 +79,7 @@ fn render(
 	Ok(())
 }
 
-fn update_player(player: &mut Player) {
-	use self::Direction::*;
-	match player.direction {
-		Left => {
-			player.position = player.position.offset(-player.speed, 0);
-		},
-		Right => {
-			player.position = player.position.offset(player.speed, 0);
-		},
-		Up => {
-			player.position = player.position.offset(0, -player.speed);
-		},
-		Down => {
-			player.position = player.position.offset(0, player.speed);
-		},
-	}
-	
+fn update_player(player: &mut Player) {	
 	if player.speed != 0 {
 		player.current_frame = (player.current_frame + 1) % 3;
 	}
