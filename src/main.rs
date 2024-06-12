@@ -3,6 +3,7 @@ mod physics;
 mod animator;
 mod keyboard;
 mod renderer;
+mod ai;
 
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
@@ -68,12 +69,12 @@ fn initialize_player(world: &mut World, player_spritesheet: usize) {
     };
 
     world.create_entity()
-        .with(KeyboardControlled)
-        .with(Position(Point::new(0, 0)))
-        .with(Velocity {speed: 0, direction: Direction::Right})
-        .with(player_animation.right_frames[0].clone())
-        .with(player_animation)
-        .build();
+      .with(KeyboardControlled)
+      .with(Position(Point::new(0, 0)))
+      .with(Velocity {speed: 0, direction: Direction::Right})
+      .with(player_animation.right_frames[0].clone())
+      .with(player_animation)
+      .build();
 }
 
 fn initialize_enemy(world: &mut World, enemy_spritesheet: usize, position: Point) {
@@ -88,11 +89,12 @@ fn initialize_enemy(world: &mut World, enemy_spritesheet: usize, position: Point
 	};
 
 	world.create_entity()
-	.with(Position(position))
-	.with(Velocity {speed: 0, direction: Direction::Right})
-	.with(enemy_animation.right_frames[0].clone())
-	.with(enemy_animation)
-	.build();
+	  .with(Enemy)
+		.with(Position(position))
+		.with(Velocity {speed: 0, direction: Direction::Right})
+		.with(enemy_animation.right_frames[0].clone())
+		.with(enemy_animation)
+		.build();
 }
 
 
@@ -113,8 +115,9 @@ fn main() -> Result<(), String> {
 	
 	let mut dispatcher = DispatcherBuilder::new()
 	  .with(keyboard::Keyboard, "Keyboard", &[])
-	  .with(physics::Physics, "Physics", &["Keyboard"])
-	  .with(animator::Animator, "Animator", &["Keyboard"])
+    .with(ai::AI, "AI", &[])
+    .with(physics::Physics, "Physics", &["Keyboard", "AI"])
+    .with(animator::Animator, "Animator", &["Keyboard", "AI"])
 		.build();
 
 	let mut world = World::new();
