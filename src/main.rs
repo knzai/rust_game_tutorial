@@ -6,6 +6,10 @@ use sdl2::keyboard::Keycode;
 use sdl2::render::{WindowCanvas, Texture};
 use sdl2::rect::{Point, Rect};
 use sdl2::image::{self, LoadTexture, InitFlag};
+
+use specs::prelude::*;
+use specs_derive::Component;
+
 use std::time::Duration;
 
 const PLAYER_MOVEMENT_SPEED: i32 = 20;
@@ -18,6 +22,39 @@ enum Direction {
     Right,
 }
 
+/// The current position of a given entity
+#[derive(Component, Debug)]
+#[storage(VecStorage)]
+struct Position(Point);
+
+/// The current speed and direction of a given entity
+#[derive(Component, Debug)]
+#[storage(VecStorage)]
+struct Velocity {
+    speed: i32,
+    direction: Direction,
+}
+
+#[derive(Component, Debug)]
+#[storage(VecStorage)]
+struct Sprite {
+    /// The specific spritesheet to render from
+    spritesheet: usize,
+    /// The current region of the spritesheet to be rendered
+    region: Rect,
+}
+
+#[derive(Component, Debug)]
+#[storage(VecStorage)]
+struct MovementAnimation {
+    // The current frame in the animation of the direction this entity is moving in
+    current_frame: usize,
+    up_frames: Vec<Sprite>,
+    down_frames: Vec<Sprite>,
+    left_frames: Vec<Sprite>,
+    right_frames: Vec<Sprite>,
+}
+
 #[derive(Debug)]
 struct Player {
 	position: Point,
@@ -26,6 +63,7 @@ struct Player {
 	direction: Direction,
 	current_frame: i32,
 }
+
 fn direction_spritesheet_row(direction:Direction) -> i32 {
 	use self::Direction::*;
 	match direction {
