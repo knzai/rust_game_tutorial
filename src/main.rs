@@ -1,5 +1,6 @@
 mod components;
 mod physics;
+mod animator;
 
 use sdl2::pixels::Color;
 use sdl2::event::Event;
@@ -79,12 +80,6 @@ fn render(
 	Ok(())
 }
 
-fn update_player(player: &mut Player) {	
-	if player.speed != 0 {
-		player.current_frame = (player.current_frame + 1) % 3;
-	}
-}
-
 fn main() -> Result<(), String> {
 	let sdl_context = sdl2::init()?;
 	let video_subsystem = sdl_context.video()?;
@@ -162,7 +157,6 @@ fn main() -> Result<(), String> {
 
 		// Update
 		i = (i + 1) % 255;
-		update_player(&mut player);
 
 		// Render
 		render(&mut canvas, Color::RGB(i, 64, 255 - i), &texture, &player)?;
