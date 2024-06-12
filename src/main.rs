@@ -86,16 +86,25 @@ fn main() -> Result<(), String> {
 	let _image_context = image::init(InitFlag::PNG | InitFlag::JPG)?;
 
 	let window = video_subsystem.window("game tutorial", 800, 600)
-	.position_centered()
-	.build()
-	.expect("could not initialize video subsystem");
+		.position_centered()
+		.build()
+		.expect("could not initialize video subsystem");
 
 	let mut canvas = window.into_canvas().build()
-	.expect("could not make a canvas");
+		.expect("could not make a canvas");
 
 	let texture_creator = canvas.texture_creator();
+	
+	let mut dispatcher = DispatcherBuilder::new()
+		.with(physics::Physics, "Physics", &[])
+		.with(animator::Animator, "Animator", &[])
+		.build();
+
+	let mut world = World::new();
+	dispatcher.setup(&mut world.res);
+	
 	let textures = [
-	texture_creator.load_texture("assets/bardo.png")?,
+		texture_creator.load_texture("assets/bardo.png")?,
 	];
 	// First texture in textures array
 	let player_spritesheet = 0;
@@ -109,14 +118,12 @@ fn main() -> Result<(), String> {
 		right_frames: character_animation_frames(player_spritesheet, player_top_left_frame, Direction::Right),
 	};
 
-	let mut world = World::new();
-
 	world.create_entity()
-	.with(Position(Point::new(0, 0)))
-	.with(Velocity {speed: 0, direction: Direction::Right})
-	.with(player_animation.right_frames[0].clone())
-	.with(player_animation)
-	.build();
+		.with(Position(Point::new(0, 0)))
+		.with(Velocity {speed: 0, direction: Direction::Right})
+		.with(player_animation.right_frames[0].clone())
+		.with(player_animation)
+		.build();
 
 	let mut event_pump = sdl_context.event_pump()?;
 	let mut i = 0;
@@ -157,6 +164,8 @@ fn main() -> Result<(), String> {
 
 		// Update
 		i = (i + 1) % 255;
+    dispatcher.dispatch(&mut world.res);
+    world.maintain();
 
 		// Render
 		render(&mut canvas, Color::RGB(i, 64, 255 - i), &texture, &player)?;
